@@ -1,5 +1,5 @@
 import React, { useEffect, useReducer, useState } from 'react'
-// useEffect
+import soundFile from './res/sounds/ineedmoney.mp3'
 
 function NumberInput({ id, type, value, onInputChange, isDisabled, children }) {
   return (
@@ -61,7 +61,6 @@ function Counter({ initialStep, onCount, isDisabled }) {
   const handleReset = () => {
     dispatchCounter({
       type: 'RESET',
-      step: 0,
     })
   }
 
@@ -110,10 +109,17 @@ function App() {
   }
 
   useEffect(() => {
-    console.log('IN USEEFFECT BEFORE IF')
     if (nbOp > 20) {
-      console.log('IN USEFFECT AFTER IF')
-      setIsDisabled(true)
+      const disable = async () => {
+        setIsDisabled(true)
+        try {
+          const audio = new Audio(soundFile)
+          await audio.play()
+        } catch (e) {
+          console.log(e)
+        }
+      }
+      disable()
     }
   }, [nbOp])
 
