@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useReducer, useState } from 'react'
 // useEffect
 
 function NumberInput({ id, type, value, onInputChange, isDisabled, children }) {
@@ -16,31 +16,60 @@ function NumberInput({ id, type, value, onInputChange, isDisabled, children }) {
   )
 }
 
+const counterReducer = (state, action) => {
+  switch (action.type) {
+    case 'INCREMENT':
+      return { ...state, count: state.count + state.step }
+    case 'DECREMENT':
+      return { ...state, count: state.count - state.step }
+    case 'SET_STEP':
+      return { ...state, step: action.step }
+    case 'RESET':
+      return { ...state, count: 0 }
+    default:
+      throw new Error(`Unhandled action ${action.type} in counterReducer`)
+  }
+}
+
+const initialCounterState = {
+  count: 0,
+  step: 1,
+}
+
 function Counter({ initialStep, onCount, isDisabled }) {
-  const [count, setCount] = useState(0)
-  const [step, setStep] = useState(initialStep)
+  const [counterState, dispatchCounter] = useReducer(counterReducer, {
+    ...initialCounterState,
+    step: initialStep,
+  })
 
   const handleIncrement = () => {
-    setCount((cur) => cur + step)
+    dispatchCounter({ type: 'INCREMENT' })
     onCount((cur) => Number(cur) + 1)
   }
 
   const handleDecrement = () => {
-    setCount((cur) => cur - step)
+    dispatchCounter({ type: 'DECREMENT' })
     onCount((cur) => Number(cur) + 1)
   }
 
   const handleStepChange = (event) => {
     if (!isNaN(event.target.value)) {
-      setStep(Number(event.target.value))
+      dispatchCounter({ type: 'SET_STEP', step: Number(event.target.value) })
     }
+  }
+
+  const handleReset = () => {
+    dispatchCounter({
+      type: 'RESET',
+      step: 0,
+    })
   }
 
   return (
     <>
       {console.log('Counter rendered')}
       <p>
-        count:{count} <button onClick={() => setCount(0)}>reset</button>
+        count:{counterState.count} <button onClick={handleReset}>reset</button>
       </p>
       <button onClick={handleIncrement} disabled={isDisabled}>
         +
@@ -51,7 +80,7 @@ function Counter({ initialStep, onCount, isDisabled }) {
       <NumberInput
         id="step"
         type="text"
-        value={step}
+        value={counterState.step}
         onInputChange={handleStepChange}
         isDisabled={isDisabled}
       >
@@ -108,7 +137,7 @@ function App() {
           <button onClick={clearLocalStorage}>clear local storage</button>
         </>
       )}
-      <Counter initialStep={20} onCount={setNbOp} isDisabled={isDisabled} />
+      <Counter initialStep={1} onCount={setNbOp} isDisabled={isDisabled} />
     </>
   )
 }
