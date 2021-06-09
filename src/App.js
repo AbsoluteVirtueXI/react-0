@@ -1,6 +1,4 @@
 import React, { useEffect, useState } from 'react'
-// localstorage
-// localstorage hook
 // conditional rendering
 // useEffect
 
@@ -71,6 +69,18 @@ function App() {
       {console.log('App rendered')}
       <h1>Hello HardFork</h1>
       <p>nb operations: {nbOp}</p>
+      {nbOp > 20 && (
+        <h3 style={{ color: 'red' }}>
+          You have reachead the limit, please{' '}
+          <a
+            href={
+              'https://thephnompen.files.wordpress.com/2012/02/i-am-not-a-scammer-he-is.jpg'
+            }
+          >
+            PAY
+          </a>
+        </h3>
+      )}
       <Counter initialStep={20} onCount={setNbOp} />
     </>
   )
