@@ -73,10 +73,20 @@ const useLocalStorage = (key, initialValue) => {
 
 function App() {
   const [nbOp, setNbOp] = useLocalStorage('nbOp', 0)
+  const [isDisabled, setIsDisabled] = useState(false)
 
   const clearLocalStorage = () => {
     setNbOp(0)
+    setIsDisabled(false)
   }
+
+  useEffect(() => {
+    console.log('IN USEEFFECT BEFORE IF')
+    if (nbOp > 20) {
+      console.log('IN USEFFECT AFTER IF')
+      setIsDisabled(true)
+    }
+  }, [nbOp])
 
   return (
     <>
@@ -98,7 +108,7 @@ function App() {
           <button onClick={clearLocalStorage}>clear local storage</button>
         </>
       )}
-      <Counter initialStep={20} onCount={setNbOp} isDisabled={nbOp > 20} />
+      <Counter initialStep={20} onCount={setNbOp} isDisabled={isDisabled} />
     </>
   )
 }
