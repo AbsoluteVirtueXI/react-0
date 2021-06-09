@@ -1,99 +1,51 @@
-import React, { useEffect, useReducer, useState } from 'react'
-import soundFile from './res/sounds/ineedmoney.mp3'
+import React, { useEffect, useState } from 'react'
+// localstorage
+// localstorage hook
+// conditional rendering
+// useEffect
 
-const NumberInput = ({
-  id,
-  type = 'text',
-  value,
-  onInputChange,
-  isDisabled,
-  children,
-}) => {
+function NumberInput({ id, type, value, onInputChange, children }) {
   return (
     <>
-      {console.log('NumberInput draw')}
       <label htmlFor={id}>{children}</label>
-      <input
-        id={id}
-        type={type}
-        value={value}
-        onChange={onInputChange}
-        disabled={isDisabled}
-      />
+      <input id={id} type={type} value={value} onChange={onInputChange} />
     </>
   )
 }
 
-const counterReducer = (state, action) => {
-  switch (action.type) {
-    case 'INCREMENT':
-      return { ...state, count: state.count + state.step }
-    case 'DECREMENT':
-      return { ...state, count: state.count - state.step }
-    case 'SET_STEP':
-      return { ...state, step: action.step }
-    case 'RESET':
-      return { ...state, count: 0 }
-    default:
-      throw new Error(`Unhandled action ${action.type} in counterReducer`)
-  }
-}
-
-const counterInitialState = {
-  count: 0,
-  step: 1,
-}
-
-const Counter = ({ initialStep, onCount, isDisabled }) => {
-  const [counterState, counterDispatch] = useReducer(counterReducer, {
-    ...counterInitialState,
-    step: initialStep,
-  })
+function Counter({ initialStep, onCount }) {
+  const [count, setCount] = useState(0)
+  const [step, setStep] = useState(initialStep)
 
   const handleIncrement = () => {
-    counterDispatch({ type: 'INCREMENT' })
-    onCount((prev) => Number(prev) + 1)
+    setCount((cur) => cur + step)
+    onCount((cur) => Number(cur) + 1)
   }
 
   const handleDecrement = () => {
-    counterDispatch({ type: 'DECREMENT' })
-    onCount((prev) => Number(prev) + 1)
+    setCount((cur) => cur - step)
+    onCount((cur) => Number(cur) + 1)
   }
 
-  const handleChangeStep = (event) => {
+  const handleStepChange = (event) => {
     if (!isNaN(event.target.value)) {
-      counterDispatch({ type: 'SET_STEP', step: Number(event.target.value) })
+      setStep(Number(event.target.value))
     }
-  }
-
-  const handleReset = () => {
-    counterDispatch({
-      type: 'RESET',
-      step: 0,
-    })
   }
 
   return (
     <>
-      {console.log('Counter draw')}
+      {console.log('Counter rendered')}
       <p>
-        counter: {counterState.count}{' '}
-        <button onClick={handleReset} disabled={isDisabled}>
-          reset
-        </button>
+        count:{count} <button onClick={() => setCount(0)}>reset</button>
       </p>
-      <button onClick={handleIncrement} disabled={isDisabled}>
-        <strong>+</strong>
-      </button>
-      <button onClick={handleDecrement} disabled={isDisabled}>
-        <strong>-</strong>
-      </button>
+      <button onClick={handleIncrement}>+</button>
+      <button onClick={handleDecrement}>-</button>
       <NumberInput
-        id={counterState.step}
+        id="step"
         type="text"
-        isDisabled={isDisabled}
-        value={counterState.step}
-        onInputChange={handleChangeStep}
+        value={step}
+        onInputChange={handleStepChange}
       >
         step:
       </NumberInput>
@@ -101,66 +53,27 @@ const Counter = ({ initialStep, onCount, isDisabled }) => {
   )
 }
 
-// Custom hooks
-const useLocalStorage = (key, initialState) => {
-  const [value, setValue] = useState(localStorage.getItem(key) || initialState)
+const useLocalStorage = (key, initialValue) => {
+  const [value, setValue] = useState(localStorage.getItem(key) || initialValue)
 
   useEffect(() => {
     localStorage.setItem(key, value)
-  }, [value, key])
+  }, [key, value])
 
   return [value, setValue]
 }
 
 function App() {
-  const [nbOperations, setNbOperations] = useLocalStorage('nbOperations', 0)
-  const [isDisabled, setIsDisabled] = useState(false)
-
-  const clearLocalStorage = () => {
-    setNbOperations(0)
-    setIsDisabled(false)
-  }
-
-  useEffect(() => {
-    if (nbOperations > 20) {
-      const disable = async () => {
-        setIsDisabled(true)
-        try {
-          const audio = new Audio(soundFile)
-          await audio.play()
-        } catch (e) {
-          console.log(e)
-        }
-      }
-      disable()
-    }
-  }, [nbOperations])
+  const [nbOp, setNbOp] = useLocalStorage('nbOp', 0)
 
   return (
     <>
+      {console.log('App rendered')}
       <h1>Hello HardFork</h1>
-      <p>nb operations: {nbOperations}</p>
-      {nbOperations > 20 && (
-        <>
-          <h3 style={{ color: 'red' }}>
-            You have reachead the limit, please{' '}
-            <a
-              href={
-                'https://thephnompen.files.wordpress.com/2012/02/i-am-not-a-scammer-he-is.jpg'
-              }
-            >
-              PAY
-            </a>
-          </h3>
-          <button onClick={clearLocalStorage}>clear local storage</button>
-        </>
-      )}
-      <Counter
-        initialStep={1}
-        onCount={setNbOperations}
-        isDisabled={isDisabled}
-      />
+      <p>nb operations: {nbOp}</p>
+      <Counter initialStep={20} onCount={setNbOp} />
     </>
   )
 }
+
 export default App
