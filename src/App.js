@@ -1,17 +1,22 @@
 import React, { useEffect, useState } from 'react'
-// conditional rendering
 // useEffect
 
-function NumberInput({ id, type, value, onInputChange, children }) {
+function NumberInput({ id, type, value, onInputChange, isDisabled, children }) {
   return (
     <>
       <label htmlFor={id}>{children}</label>
-      <input id={id} type={type} value={value} onChange={onInputChange} />
+      <input
+        id={id}
+        type={type}
+        disabled={isDisabled}
+        value={value}
+        onChange={onInputChange}
+      />
     </>
   )
 }
 
-function Counter({ initialStep, onCount }) {
+function Counter({ initialStep, onCount, isDisabled }) {
   const [count, setCount] = useState(0)
   const [step, setStep] = useState(initialStep)
 
@@ -37,13 +42,18 @@ function Counter({ initialStep, onCount }) {
       <p>
         count:{count} <button onClick={() => setCount(0)}>reset</button>
       </p>
-      <button onClick={handleIncrement}>+</button>
-      <button onClick={handleDecrement}>-</button>
+      <button onClick={handleIncrement} disabled={isDisabled}>
+        +
+      </button>
+      <button onClick={handleDecrement} disabled={isDisabled}>
+        -
+      </button>
       <NumberInput
         id="step"
         type="text"
         value={step}
         onInputChange={handleStepChange}
+        isDisabled={isDisabled}
       >
         step:
       </NumberInput>
@@ -64,24 +74,31 @@ const useLocalStorage = (key, initialValue) => {
 function App() {
   const [nbOp, setNbOp] = useLocalStorage('nbOp', 0)
 
+  const clearLocalStorage = () => {
+    setNbOp(0)
+  }
+
   return (
     <>
       {console.log('App rendered')}
       <h1>Hello HardFork</h1>
       <p>nb operations: {nbOp}</p>
       {nbOp > 20 && (
-        <h3 style={{ color: 'red' }}>
-          You have reachead the limit, please{' '}
-          <a
-            href={
-              'https://thephnompen.files.wordpress.com/2012/02/i-am-not-a-scammer-he-is.jpg'
-            }
-          >
-            PAY
-          </a>
-        </h3>
+        <>
+          <h3 style={{ color: 'red' }}>
+            You have reachead the limit, please{' '}
+            <a
+              href={
+                'https://thephnompen.files.wordpress.com/2012/02/i-am-not-a-scammer-he-is.jpg'
+              }
+            >
+              PAY
+            </a>
+          </h3>
+          <button onClick={clearLocalStorage}>clear local storage</button>
+        </>
       )}
-      <Counter initialStep={20} onCount={setNbOp} />
+      <Counter initialStep={20} onCount={setNbOp} isDisabled={nbOp > 20} />
     </>
   )
 }
